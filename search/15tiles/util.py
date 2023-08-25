@@ -1,29 +1,32 @@
-class Node():
+class Node:
     def __init__(self, state, parent, action):
         self.state = state
         self.parent = parent
         self.action = action
-        self.state_to_str() # string used to store in set
-        self.state_to_1d() # 1d used to index and compare
+        self.state_to_str()  # string used to store in set
+        self.state_to_1d()  # 1d used to index and compare
 
     def state_to_str(self):
         self.state_str = ','.join(str(num) for num in self.state)
 
     def state_to_1d(self):
+        size = (len(self.state), len(self.state[0]))
+        total = size[0] * size[1]
         self.state_1d = []
-        for idx in range(16):
-            self.state_1d.append(self.state[idx // 4][idx % 4])
+        for idx in range(total):
+            self.state_1d.append(self.state[idx // size[1]][idx % size[1]])
 
-    def print(self):
+
+def print_tiles(state):
+    print()
+    for row in range(len(state)):
+        for col in range(len(state[0])):
+            print("%2d" % state[row][col], end=" ")
         print()
-        for row in range(4):
-            for col in range(4):
-                print("%2d" % self.state[row][col], end=" ")
-            print()
-        print()
+    print()
 
 
-class StackFrontier():
+class StackFrontier:
     def __init__(self):
         self.frontier = []
 

@@ -2,32 +2,46 @@
 import copy
 from random import shuffle
 
-from util import Node, StackFrontier, QueueFrontier
+from util import Node, QueueFrontier, print_tiles  # StackFrontier
 
 
-class Board():
+def gen_board(rows, cols):
+    # init board
+    board_row = [*range(0, rows * cols)]
+    shuffle(board_row)
+    start_board = []
+    for row in range(rows):
+        start_board.append(board_row[row * cols:row * cols + cols])
 
-    def __init__(self):
+    # easy 4x4
+    # start_board[0][0:4] = [1, 2, 3, 7]
+    # start_board[1][3] = 0
 
-        # init board
-        board_row = [*range(0, 16)]
-        # shuffle(board_row)
-        start_board = []
-        for row in range(4):
-            start_board.append(board_row[row * 4:row * 4 + 4])
-        # start_board[0][0] = 14
-        # start_board[3][2:4] = [0, 15]
-        start_board[0][0:4] = [1, 2, 3, 7]
-        start_board[1][3] = 0
+    # easy 2x3
+    # start_board[0][0:3] = [1, 2, 5]
+    # start_board[1][2] = 0
+
+    return start_board
+
+
+class Board:
+
+    def __init__(self, start_board):
         self.start = Node(state=start_board, parent=None, action=None)
+        self.size = (len(start_board), len(start_board[0]))
+        self.total = self.size[0] * self.size[1]
 
-        self.goal_1d = [*range(0, 16)]
+        # Keep track of number of states explored
+        self.num_explored = 0
+        # Initialize an empty explored set
+        self.explored = set()
 
+        self.goal_1d = [*range(0, self.total)]
 
     def neighbors(self, node):
         empty_idx = node.state_1d.index(0)
-        empty_row = empty_idx // 4
-        empty_col = empty_idx % 4
+        empty_row = empty_idx // self.size[1]
+        empty_col = empty_idx % self.size[1]
         candidates = [
             ("up", (empty_row - 1, empty_col)),
             ("down", (empty_row + 1, empty_col)),
@@ -37,26 +51,19 @@ class Board():
 
         result = []
         for action, (r, c) in candidates:
-            if 0 <= r < 4 and 0 <= c < 4:
+            if 0 <= r < self.size[0] and 0 <= c < self.size[1]:
                 new_state = copy.deepcopy(node.state)
                 new_state[empty_row][empty_col] = node.state[r][c]
                 new_state[r][c] = 0
                 result.append((action, new_state))
         return result
 
-
     def solve(self):
         """Finds a solution to a 15 tiles board, if one exists."""
-
-        # Keep track of number of states explored
-        self.num_explored = 0
 
         # Initialize frontier to just the starting position
         frontier = QueueFrontier()
         frontier.add(self.start)
-
-        # Initialize an empty explored set
-        self.explored = set()
 
         # Keep looping until solution found
         while True:
@@ -94,62 +101,11 @@ class Board():
                     frontier.add(child)
 
     def print_start(self):
-        self.start.print()
-
-
-    def output_image(self, filename, show_solution=True, show_explored=False):
-        from PIL import Image, ImageDraw
-        cell_size = 50
-        cell_border = 2
-
-        # Create a blank canvas
-        img = Image.new(
-            "RGBA",
-            (self.width * cell_size, self.height * cell_size),
-            "black"
-        )
-        draw = ImageDraw.Draw(img)
-
-        solution = self.solution[1] if self.solution is not None else None
-        for i, row in enumerate(self.walls):
-            for j, col in enumerate(row):
-
-                # Walls
-                if col:
-                    fill = (40, 40, 40)
-
-                # Start
-                elif (i, j) == self.start:
-                    fill = (255, 0, 0)
-
-                # Goal
-                elif (i, j) == self.goal:
-                    fill = (0, 171, 28)
-
-                # Solution
-                elif solution is not None and show_solution and (i, j) in solution:
-                    fill = (220, 235, 113)
-
-                # Explored
-                elif solution is not None and show_explored and (i, j) in self.explored:
-                    fill = (212, 97, 85)
-
-                # Empty cell
-                else:
-                    fill = (237, 240, 252)
-
-                # Draw cell
-                draw.rectangle(
-                    ([(j * cell_size + cell_border, i * cell_size + cell_border),
-                      ((j + 1) * cell_size - cell_border, (i + 1) * cell_size - cell_border)]),
-                    fill=fill
-                )
-
-        img.save(filename)
+        print_tiles(self.start.state)
 
 
 def main():
-    board = Board()
+    board = Board(gen_board(2, 4))
     print("Original board:")
     board.print_start()
     print("Solving...")
@@ -157,102 +113,15 @@ def main():
     print("States Explored:", board.num_explored)
     print("Solution:")
 
-    print(f"{len(board.solution[0])} steps:")
+    print(f"{len(board.solution[0])} steps.")
     idx = 1
     for action, step in zip(*board.solution):
-        print(f"Step {idx}: {action}")
-        for row in range(4):
-            for col in range(4):
-                print("%2d" % step[row][col], end=" ")
-            print()
-        print()
+        print(f"Step {idx} is {action}")
+        print_tiles(step)
         idx += 1
-
-def shortest_path(source, target):
-    """
-    Returns the shortest list of (movie_id, person_id) pairs
-    that connect the source to the target.
-
-    If no possible path, returns None.
-    """
-
-    # Initialize frontier to just the starting position
-    start = Node(state=source, parent=None, action=None)
-    frontier = QueueFrontier()
-    frontier.add(start)
-
-    # Initialize an empty explored set
-    explored = set()
-
-    # Keep looping until solution found
-    while True:
-        # If nothing left in frontier, then no path
-        if frontier.empty():
-            return None
-        else:
-
-            # Choose a node from the frontier
-            node = frontier.remove()
-
-            # If node is the goal, then we have a solution
-            if node.state == target:
-                links = []
-                while node.parent is not None:
-                    links.append((node.action, node.state))
-                    node = node.parent
-                links.reverse()
-                return links
-
-            # Mark node as explored
-            explored.add(node.state)
-
-            # Add neighbors to frontier
-            neighbors = neighbors_for_person(node.state)
-            for neighbor in neighbors:
-                if not frontier.contains_state(neighbor[1]) and neighbor[1] not in explored:
-                    child = Node(state=neighbor[1], parent=node, action=neighbor[0])
-                    frontier.add(child)
-
-
-
-def person_id_for_name(name):
-    """
-    Returns the IMDB id for a person's name,
-    resolving ambiguities as needed.
-    """
-    person_ids = list(names.get(name.lower(), set()))
-    if len(person_ids) == 0:
-        return None
-    elif len(person_ids) > 1:
-        print(f"Which '{name}'?")
-        for person_id in person_ids:
-            person = people[person_id]
-            name = person["name"]
-            birth = person["birth"]
-            print(f"ID: {person_id}, Name: {name}, Birth: {birth}")
-        try:
-            person_id = input("Intended Person ID: ")
-            if person_id in person_ids:
-                return person_id
-        except ValueError:
-            pass
-        return None
-    else:
-        return person_ids[0]
-
-
-def neighbors_for_person(person_id):
-    """
-    Returns (movie_id, person_id) pairs for people
-    who starred with a given person.
-    """
-    movie_ids = people[person_id]["movies"]
-    neighbors = set()
-    for movie_id in movie_ids:
-        for person_id in movies[movie_id]["stars"]:
-            neighbors.add((movie_id, person_id))
-    return neighbors
 
 
 if __name__ == "__main__":
     main()
+    # TODO code coverage, remove dead code
+    # TODO run profiler, optimize timing
