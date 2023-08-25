@@ -1,4 +1,5 @@
 # import sys
+import copy
 from random import shuffle
 
 from util import Node, StackFrontier, QueueFrontier
@@ -8,41 +9,39 @@ class Board():
 
     def __init__(self):
 
-        self.board = []
+        # init board
         board_row = [*range(0, 16)]
         # shuffle(board_row)
+        start_board = []
         for row in range(4):
-            self.board.append(board_row[row * 4:row * 4 + 4])
-        self.board[3][2:4] = [0, 15]
+            start_board.append(board_row[row * 4:row * 4 + 4])
+        # start_board[0][0] = 14
+        # start_board[3][2:4] = [0, 15]
+        start_board[0][0:4] = [1, 2, 3, 7]
+        start_board[1][3] = 0
+        self.start = Node(state=start_board, parent=None, action=None)
 
-        self.goal = []
-        board_row = [*range(0, 16)]
-        # shuffle(board_row)
-        for row in range(4):
-            self.goal.append(board_row[row * 4:row * 4 + 4])
-
-    def print(self):
-        print()
-        for row in range(4):
-            for col in range(4):
-                print("%2d" % self.board[row][col], end=" ")
-            print()
-        print()
+        self.goal_1d = [*range(0, 16)]
 
 
-    def neighbors(self, state):
-        row, col = state
+    def neighbors(self, node):
+        empty_idx = node.state_1d.index(0)
+        empty_row = empty_idx // 4
+        empty_col = empty_idx % 4
         candidates = [
-            ("up", (row - 1, col)),
-            ("down", (row + 1, col)),
-            ("left", (row, col - 1)),
-            ("right", (row, col + 1))
+            ("up", (empty_row - 1, empty_col)),
+            ("down", (empty_row + 1, empty_col)),
+            ("left", (empty_row, empty_col - 1)),
+            ("right", (empty_row, empty_col + 1))
         ]
 
         result = []
         for action, (r, c) in candidates:
-            if 0 <= r < self.height and 0 <= c < self.width and not self.walls[r][c]:
-                result.append((action, (r, c)))
+            if 0 <= r < 4 and 0 <= c < 4:
+                new_state = copy.deepcopy(node.state)
+                new_state[empty_row][empty_col] = node.state[r][c]
+                new_state[r][c] = 0
+                result.append((action, new_state))
         return result
 
 
@@ -53,9 +52,8 @@ class Board():
         self.num_explored = 0
 
         # Initialize frontier to just the starting position
-        start = Node(state=self.board, parent=None, action=None)
         frontier = QueueFrontier()
-        frontier.add(start)
+        frontier.add(self.start)
 
         # Initialize an empty explored set
         self.explored = set()
@@ -70,11 +68,11 @@ class Board():
             # Choose a node from the frontier
             node = frontier.remove()
             self.num_explored += 1
-            print(f"{self.num_explored} states explored, {len(frontier.frontier)} in frontier")
+            if not self.num_explored % 1000:
+                print(f"{self.num_explored} states explored, {len(frontier.frontier)} in frontier")
 
             # If node is the goal, then we have a solution
-            if node.state == self.goal:
-                # TODO
+            if node.state_1d == self.goal_1d:
                 actions = []
                 cells = []
                 while node.parent is not None:
@@ -87,13 +85,16 @@ class Board():
                 return
 
             # Mark node as explored
-            self.explored.add(node.state)
+            self.explored.add(node.state_str)
 
             # Add neighbors to frontier
-            for action, state in self.neighbors(node.state):
-                if not frontier.contains_state(state) and state not in self.explored:
-                    child = Node(state=state, parent=node, action=action)
+            for action, state in self.neighbors(node):
+                child = Node(state=state, parent=node, action=action)
+                if not frontier.contains_state(state) and child.state_str not in self.explored:
                     frontier.add(child)
+
+    def print_start(self):
+        self.start.print()
 
 
     def output_image(self, filename, show_solution=True, show_explored=False):
@@ -150,29 +151,22 @@ class Board():
 def main():
     board = Board()
     print("Original board:")
-    board.print()
+    board.print_start()
     print("Solving...")
     board.solve()
-    '''
-    print("States Explored:", m.num_explored)
+    print("States Explored:", board.num_explored)
     print("Solution:")
-    m.print()
-    m.output_image("maze.png", show_explored=True)
 
-    path = shortest_path(source, target)
-
-    if path is None:
-        print("Not connected.")
-    else:
-        degrees = len(path)
-        print(f"{degrees} degrees of separation.")
-        path = [(None, source)] + path
-        for i in range(degrees):
-            person1 = people[path[i][1]]["name"]
-            person2 = people[path[i + 1][1]]["name"]
-            movie = movies[path[i + 1][0]]["title"]
-            print(f"{i + 1}: {person1} and {person2} starred in {movie}")
-
+    print(f"{len(board.solution[0])} steps:")
+    idx = 1
+    for action, step in zip(*board.solution):
+        print(f"Step {idx}: {action}")
+        for row in range(4):
+            for col in range(4):
+                print("%2d" % step[row][col], end=" ")
+            print()
+        print()
+        idx += 1
 
 def shortest_path(source, target):
     """
@@ -258,7 +252,7 @@ def neighbors_for_person(person_id):
         for person_id in movies[movie_id]["stars"]:
             neighbors.add((movie_id, person_id))
     return neighbors
-'''
+
 
 if __name__ == "__main__":
     main()

@@ -3,6 +3,24 @@ class Node():
         self.state = state
         self.parent = parent
         self.action = action
+        self.state_to_str() # string used to store in set
+        self.state_to_1d() # 1d used to index and compare
+
+    def state_to_str(self):
+        self.state_str = ','.join(str(num) for num in self.state)
+
+    def state_to_1d(self):
+        self.state_1d = []
+        for idx in range(16):
+            self.state_1d.append(self.state[idx // 4][idx % 4])
+
+    def print(self):
+        print()
+        for row in range(4):
+            for col in range(4):
+                print("%2d" % self.state[row][col], end=" ")
+            print()
+        print()
 
 
 class StackFrontier():
