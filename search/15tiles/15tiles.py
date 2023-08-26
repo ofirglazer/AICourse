@@ -1,4 +1,5 @@
-# import sys
+import cProfile
+import pstats
 import copy
 from random import shuffle
 
@@ -122,6 +123,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    with cProfile.Profile() as profile:
+        main()
+
+    results = pstats.Stats(profile)
+    results.sort_stats(pstats.SortKey.TIME)
+    results.print_stats()
     # TODO code coverage, remove dead code
     # TODO run profiler, optimize timing

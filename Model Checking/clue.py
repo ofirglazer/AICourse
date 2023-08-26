@@ -1,4 +1,4 @@
-import termcolor
+# import termcolor
 
 from logic import *
 
@@ -23,7 +23,8 @@ symbols = characters + rooms + weapons
 def check_knowledge(knowledge):
     for symbol in symbols:
         if model_check(knowledge, symbol):
-            termcolor.cprint(f"{symbol}: YES", "green")
+            # termcolor.cprint(f"{symbol}: YES", "green")
+            print(f"{symbol}: YES")
         elif not model_check(knowledge, Not(symbol)):
             print(f"{symbol}: MAYBE")
 
@@ -46,7 +47,7 @@ knowledge.add(Or(
 ))
 
 # Known cards
-knowledge.add(Not(plum))
+# knowledge.add(Not(plum))
 knowledge.add(Not(ballroom))
 
 check_knowledge(knowledge)
