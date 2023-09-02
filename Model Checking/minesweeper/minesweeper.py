@@ -257,12 +257,12 @@ class MinesweeperAI:
         if b-a count is 0, update safes, not a new sentence
         if b-a count == b-a, update mines, not a new sentence
         if b-a already exists, skip new sentence        
-        
+        '''
         for sentence_a in self.knowledge.copy():
             for sentence_b in self.knowledge.copy():
                 if (len(sentence_a.cells) > 0 and sentence_a.cells < sentence_b.cells):
                     # a is subset of b, a != b, a not empty
-                    print(f"reached subset of {sentence_a} in {sentence_b}")
+                    # print(f"reached subset of {sentence_a} in {sentence_b}")
                     new_count = sentence_b.count - sentence_a.count
                     new_cells = sentence_b.cells - sentence_a.cells
                     new_sentence = Sentence(new_cells, new_count)
@@ -278,15 +278,15 @@ class MinesweeperAI:
                     elif new_sentence not in self.knowledge:
                         # found NEW sentence
                         self.knowledge.append(new_sentence)
-                        print(f"Sentence A: {sentence_a}")
-                        print(f"Sentence B: {sentence_b}")
-                        print(f"subsetting, total {len(self.knowledge)} sentences")'''
+                        # print(f"Sentence A: {sentence_a}")
+                        # print(f"Sentence B: {sentence_b}")
+                        # print(f"subsetting, total {len(self.knowledge)} sentences")
 
-        print("\nAfter adding knowledge")
-        print(f"Mines: {self.mines}")
-        print(f"Unused safes: {self.safes - self.moves_made}")
-        for sentence in self.knowledge:
-            print(sentence)
+        # print("\nAfter adding knowledge")
+        # print(f"Mines: {self.mines}")
+        # print(f"Unused safes: {self.safes - self.moves_made}")
+        # for sentence in self.knowledge:
+        #     print(sentence)
 
     def make_safe_move(self):
         """
@@ -297,11 +297,11 @@ class MinesweeperAI:
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        print(f"Mines: {self.mines}")
-        print(f"Unused safes: {self.safes - self.moves_made}")
+        # print(f"Mines: {self.mines}")
+        # print(f"Unused safes: {self.safes - self.moves_made}")
         for safe in self.safes:
             if safe not in self.moves_made:
-                print(f"Next safe move: {safe}\n")
+                # print(f"Next safe move: {safe}\n")
                 return safe
         return None
 
@@ -312,7 +312,6 @@ class MinesweeperAI:
             1) have not already been chosen, and
             2) are not known to be mines
         """
-        print("looking for random move")
         # if found all mines and covered all other cells
         if len(self.moves_made) + len(self.mines) == self.height * self.width:
             return None
@@ -324,4 +323,3 @@ class MinesweeperAI:
                     (row, col) not in self.mines):
                 return (row, col)
             count += 1
-

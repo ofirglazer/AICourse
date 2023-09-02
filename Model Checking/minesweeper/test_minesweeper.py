@@ -3,10 +3,10 @@ from minesweeper import Sentence, MinesweeperAI, Minesweeper
 
 
 class Test(TestCase):
-    '''def test_minesweeper(self):
+    """def test_minesweeper(self):
         # ms = Minesweeper()
         # ms.print()
-        self.skipTest('no test relevant')'''
+        self.skipTest('no test relevant')"""
 
     def test_sentence(self):
         s1 = Sentence({(0, 0), (1, 0)}, 1)

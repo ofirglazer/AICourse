@@ -4,9 +4,9 @@ import time
 
 from minesweeper import Minesweeper, MinesweeperAI
 
-HEIGHT = 4
-WIDTH = 4
-MINES = 4
+HEIGHT = 8
+WIDTH = 8
+MINES = 8
 
 # Colors
 BLACK = (0, 0, 0)
@@ -39,7 +39,6 @@ mine = pygame.transform.scale(mine, (cell_size, cell_size))
 
 # Create game and AI agent
 game = Minesweeper(height=HEIGHT, width=WIDTH, mines=MINES)
-game.print()  # TODO remove
 ai = MinesweeperAI(height=HEIGHT, width=WIDTH)
 
 # Keep track of revealed cells, flagged cells, and if a mine was hit
@@ -185,7 +184,6 @@ while True:
             if move is None:
                 move = ai.make_random_move()
                 if move is None:
-                    print("reached no available moves")  # TODO
                     flags = ai.mines.copy()
                 else:
                     print("No known safe moves, AI making random move.")
