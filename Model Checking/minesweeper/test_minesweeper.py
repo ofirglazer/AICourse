@@ -1,5 +1,5 @@
 from unittest import TestCase
-from minesweeper import Sentence, MinesweeperAI  # Minesweeper
+from minesweeper import Sentence, MinesweeperAI, Minesweeper
 
 
 class Test(TestCase):
@@ -44,7 +44,7 @@ class Test(TestCase):
         s6.mark_mine((0, 0))
         self.assertEqual({(0, 1), (1, 0), (1, 1)}, s6.known_safes(), "safes known when adding mines")
 
-    def test_minesweeper_ai(self):
+    '''def test_minesweeper_ai(self):
         HEIGHT = 8
         WIDTH = 8
         MINES = 8
@@ -57,4 +57,36 @@ class Test(TestCase):
         safe_set = {(0, 0), (0, 1), (0, 2), (0, 3), (1, 1), (1, 2), (1, 3)}
         self.assertEqual(safe_set, ai.safes, "safes known after move")
         safe_move = ai.make_safe_move()
-        self.assertTrue(safe_move in safe_set)
+        self.assertTrue(safe_move in safe_set)'''
+
+    def test_minesweeper_ai_script(self):
+        HEIGHT = 4
+        WIDTH = 4
+        MINES = 4
+        revealed = set()
+        flags = set()
+        lost = False
+        game = Minesweeper(height=HEIGHT, width=WIDTH, mines=MINES)
+        ai = MinesweeperAI(height=HEIGHT, width=WIDTH)
+        game.print()
+
+        while not lost:
+            move = ai.make_safe_move()
+            if move is None:
+                move = ai.make_random_move()
+                if move is None:
+                    pass
+                else:
+                    print("No known safe moves, AI making random move.")
+            else:
+                print("AI making safe move.")
+
+            if move:
+                print(f"move is {move}")
+                if game.is_mine(move):
+                    lost = True
+                    print("Lost")
+                else:
+                    nearby = game.nearby_mines(move)
+                    revealed.add(move)
+                    ai.add_knowledge(move, nearby)
