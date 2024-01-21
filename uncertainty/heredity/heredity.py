@@ -141,7 +141,9 @@ def joint_probability(people, one_gene, two_genes, have_trait):
     """
     joint_prob = 1
     genes = dict()
+    trait = dict()
 
+    # first - map gene number per person
     for person in people:
         if person in one_gene:
             genes[person] = 1
@@ -149,13 +151,102 @@ def joint_probability(people, one_gene, two_genes, have_trait):
             genes[person] = 2
         else:
             genes[person] = 0
-
-    for person in people:
-        if not(people[person]["mother"]):
-            joint_prob *= PROBS["gene"][genes[person]]
+        if person in have_trait:
+            trait[person] = True
         else:
-            # TODO reached here
-            pass
+            trait[person] = False
+
+    # next - prob for gene number per person
+    for person in people:
+
+        # probability of genes based on parents of apriori
+        if not(people[person]["mother"]):
+            # no specific parents
+            prob_genes = PROBS["gene"][genes[person]]
+        else:
+            # has specific parents
+
+            # person: 0 genes
+            if genes[person] == 0:
+                # person: m.0 genes, f.0 genes
+                if (genes[people[person]["mother"]] == 0 and genes[people[person]["father"]] == 0):
+                    prob_genes = pow((1 - PROBS["mutation"]), 2)
+                # person: m.2 genes, f.2 genes
+                elif (genes[people[person]["mother"]] == 2 and genes[people[person]["father"]] == 2):
+                    prob_genes = pow(PROBS["mutation"], 2)
+                # person: m.0 genes, f.1 genes or vice versa
+                elif ((genes[people[person]["mother"]] == 0 and genes[people[person]["father"]] == 1) or
+                      (genes[people[person]["mother"]] == 1 and genes[people[person]["father"]] == 0)):
+                    prob_genes = ((1 - PROBS["mutation"]) *
+                                  (0.5 * (1 - PROBS["mutation"]) + 0.5 * PROBS["mutation"]))
+                # person: m.0 genes, f.2 genes or vice versa
+                elif ((genes[people[person]["mother"]] == 0 and genes[people[person]["father"]] == 2) or
+                      (genes[people[person]["mother"]] == 2 and genes[people[person]["father"]] == 0)):
+                    prob_genes = ((1 - PROBS["mutation"]) * PROBS["mutation"])
+                # person: m.1 genes, f.2 genes or vice versa
+                elif ((genes[people[person]["mother"]] == 1 and genes[people[person]["father"]] == 2) or
+                      (genes[people[person]["mother"]] == 2 and genes[people[person]["father"]] == 1)):
+                    prob_genes = ((0.5 * (1 - PROBS["mutation"]) + 0.5 * PROBS["mutation"]) *
+                                  PROBS["mutation"])
+                else:
+                    sys.exit("wrong case")
+
+            # person: 2 genes
+            elif genes[person] == 2:
+                # person: m.0 genes, f.0 genes
+                if (genes[people[person]["mother"]] == 0 and genes[people[person]["father"]] == 0):
+                    prob_genes = pow(PROBS["mutation"], 2)
+                # person: m.2 genes, f.2 genes
+                elif (genes[people[person]["mother"]] == 2 and genes[people[person]["father"]] == 2):
+                    prob_genes = pow((1 - PROBS["mutation"]), 2)
+                # person: m.0 genes, f.1 genes or vice versa
+                elif ((genes[people[person]["mother"]] == 0 and genes[people[person]["father"]] == 1) or
+                      (genes[people[person]["mother"]] == 1 and genes[people[person]["father"]] == 0)):
+                    prob_genes = (PROBS["mutation"] *
+                                  (0.5 * (1 - PROBS["mutation"]) + 0.5 * PROBS["mutation"]))
+                # person: m.0 genes, f.2 genes or vice versa
+                elif ((genes[people[person]["mother"]] == 0 and genes[people[person]["father"]] == 2) or
+                      (genes[people[person]["mother"]] == 2 and genes[people[person]["father"]] == 0)):
+                    prob_genes = (PROBS["mutation"]) * (1 - PROBS["mutation"])
+                # person: m.1 genes, f.2 genes or vice versa
+                elif ((genes[people[person]["mother"]] == 1 and genes[people[person]["father"]] == 2) or
+                      (genes[people[person]["mother"]] == 2 and genes[people[person]["father"]] == 1)):
+                    prob_genes = ((0.5 * (1 - PROBS["mutation"]) + 0.5 * PROBS["mutation"]) *
+                                  (1 - PROBS["mutation"]))
+                else:
+                    sys.exit("wrong case")
+
+            # person: 1 genes
+            else:
+                # person: m.0 genes, f.0 genes
+                if (genes[people[person]["mother"]] == 0 and genes[people[person]["father"]] == 0):
+                    prob_genes = PROBS["mutation"] * (1 - PROBS["mutation"]) * 2
+                # person: m.2 genes, f.2 genes
+                elif (genes[people[person]["mother"]] == 2 and genes[people[person]["father"]] == 2):
+                    prob_genes = PROBS["mutation"] * (1 - PROBS["mutation"]) * 2
+                # person: m.0 genes, f.1 genes or vice versa
+                elif ((genes[people[person]["mother"]] == 0 and genes[people[person]["father"]] == 1) or
+                      (genes[people[person]["mother"]] == 1 and genes[people[person]["father"]] == 0)):
+                    prob_genes = (0.5 * (1 - PROBS["mutation"]) + 0.5 * PROBS["mutation"])
+                # person: m.0 genes, f.2 genes or vice versa
+                elif ((genes[people[person]["mother"]] == 0 and genes[people[person]["father"]] == 2) or
+                      (genes[people[person]["mother"]] == 2 and genes[people[person]["father"]] == 0)):
+                    prob_genes = ((1 - PROBS["mutation"]) * (1 - PROBS["mutation"]) +
+                                  PROBS["mutation"] * PROBS["mutation"])
+                # person: m.1 genes, f.2 genes or vice versa
+                elif ((genes[people[person]["mother"]] == 1 and genes[people[person]["father"]] == 2) or
+                      (genes[people[person]["mother"]] == 2 and genes[people[person]["father"]] == 1)):
+                    prob_genes = (0.5 * (1 - PROBS["mutation"]) + 0.5 * PROBS["mutation"])
+                else:
+                    sys.exit("wrong case")
+        joint_prob *= prob_genes
+
+        # probability of trait based on genes
+        if trait[person]:
+            prob_trait = PROBS["trait"][genes[person]][True]
+        else:
+            prob_trait = PROBS["trait"][genes[person]][False]
+        joint_prob *= prob_trait
 
     return joint_prob
 
