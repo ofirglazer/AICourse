@@ -110,9 +110,6 @@ def iterate_pagerank(corpus, damping_factor):
     eps = 0.001
     page_rank = dict()
     change = dict()
-
-    corpus = {'1.html': {'2.html'}, '2.html': {'1.html', '3.html'}, '3.html': {'2.html', '4.html', '5.html'}, '4.html': {'2.html', '1.html'}, '5.html': set()}
-
     for page in corpus:
         page_rank[page] = 1 / len(corpus)
         change[page] = 1
