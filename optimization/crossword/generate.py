@@ -182,7 +182,7 @@ class CrosswordCreator():
         that rules out the fewest values among the neighbors of `var`.
         """
         return self.domains[var]
-    # TODO sort domain
+        # TODO sort domain
 
     def select_unassigned_variable(self, assignment):
         """
@@ -192,10 +192,15 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
+        unassigned_vars = []
         for var in self.crossword.variables:
             if var not in assignment:
-                return var
-            # TODO select smarter var
+                unassigned_vars.append(var)
+        # first: secondary sort
+        unassigned_vars.sort(key=lambda degree: len(self.crossword.neighbors(degree)))
+        # second: primary sort
+        unassigned_vars.sort(key= lambda domain: len(self.domains[domain]))
+        return unassigned_vars[0]
 
     def backtrack(self, assignment):
         """
@@ -211,8 +216,9 @@ class CrosswordCreator():
 
         var = self.select_unassigned_variable(assignment)
         for word in self.order_domain_values(var, assignment):
-            assignment[var] = word
-            return self.backtrack(assignment)
+            new_assignment = assignment.copy()
+            new_assignment[var] = word
+            return self.backtrack(new_assignment)
 
         return None
 
