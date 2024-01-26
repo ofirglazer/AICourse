@@ -181,8 +181,17 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        return self.domains[var]
-        # TODO sort domain
+        rule_out = dict()
+        candidates = list(self.crossword.neighbors(var))
+        for word in list(self.domains[var]):
+            same_word = 0
+            for neighbor in candidates:
+                if word in self.domains[neighbor]:
+                    same_word += 1
+            rule_out[word] = same_word
+
+        domain_sorted = sorted(self.domains[var], key= lambda ruled: rule_out[ruled])
+        return domain_sorted
 
     def select_unassigned_variable(self, assignment):
         """
