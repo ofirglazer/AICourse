@@ -177,6 +177,10 @@ class CrosswordCreator():
         """
         # all values are distinct
         for var1 in assignment:
+            # all values are correct length
+            if not len(assignment[var1]) == var1.length:
+                return False
+            # all values are distinct
             for var2 in assignment:
                 if not var1 == var2:
                     # different variables, same word
@@ -249,7 +253,7 @@ class CrosswordCreator():
             new_assignment[var] = word
             if self.consistent(new_assignment):
                 result = self.backtrack(new_assignment)
-                if result is not None: # TODO replace is with ==
+                if result is not None:
                     return result
             # recheck_arcs = []
             # for neighbor in self.crossword.neighbors(var):
