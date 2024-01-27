@@ -147,7 +147,7 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        if not arcs:
+        if arcs is None:
             arcs = list(self.crossword.overlaps)
 
         while arcs:
