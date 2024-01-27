@@ -206,11 +206,11 @@ class CrosswordCreator():
         rule_out = dict()
         candidates = list(self.crossword.neighbors(var))
         for word in list(self.domains[var]):
-            same_word = 0
+            rules_out = 0
             for neighbor in candidates:
                 if word in self.domains[neighbor]:
-                    same_word += 1
-            rule_out[word] = same_word
+                    rules_out += 1
+            rule_out[word] = rules_out
 
         domain_sorted = sorted(self.domains[var], key= lambda ruled: rule_out[ruled])
         return domain_sorted
