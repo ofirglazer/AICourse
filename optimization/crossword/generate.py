@@ -14,6 +14,7 @@ class CrosswordCreator():
             var: self.crossword.words.copy()
             for var in self.crossword.variables
         }
+        self.counter = 0
 
     def letter_grid(self, assignment):
         """
@@ -149,13 +150,15 @@ class CrosswordCreator():
         if not arcs:
             arcs = list(self.crossword.overlaps)
 
-        for arc in arcs:
+        while arcs:
+            arc = arcs.pop()
             revised = self.revise(arc[0], arc[1])
             if revised:
                 if not self.domains[arc[0]]:
                     return False
                 for neighbour in self.crossword.neighbors(arc[0]):
-                    arcs.append((neighbour, arc[0]))
+                    if not (neighbour, arc[0]) in arcs:
+                        arcs.append((neighbour, arc[0]))
         return True
 
     def assignment_complete(self, assignment):
@@ -172,7 +175,22 @@ class CrosswordCreator():
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
         """
-        raise NotImplementedError
+        # all values are distinct
+        for var1 in assignment:
+            for var2 in assignment:
+                if not var1 == var2:
+                    # different variables, same word
+                    if assignment[var1] == assignment[var2]:
+                        return False
+                    # no conflicts between neighboring variables
+                    if (var1, var2) in self.crossword.overlaps:
+                        conflict = self.crossword.overlaps[(var1, var2)]
+                        if conflict is not None:
+                            if not assignment[var1][conflict[0]] == assignment[var2][conflict[1]]:
+                                return False
+        return True
+
+
 
     def order_domain_values(self, var, assignment):
         """
@@ -220,15 +238,23 @@ class CrosswordCreator():
 
         If no assignment is possible, return None.
         """
+        self.counter += 1
         if self.assignment_complete(assignment):
+            print(f"number of tries is {self.counter}")
             return assignment
 
         var = self.select_unassigned_variable(assignment)
         for word in self.order_domain_values(var, assignment):
             new_assignment = assignment.copy()
             new_assignment[var] = word
-            return self.backtrack(new_assignment)
-
+            if self.consistent(new_assignment):
+                result = self.backtrack(new_assignment)
+                if result is not None: # TODO replace is with ==
+                    return result
+            # recheck_arcs = []
+            # for neighbor in self.crossword.neighbors(var):
+            #     recheck_arcs.append((neighbor, var))
+            # new_var_ok = self.ac3(recheck_arcs)
         return None
 
 
