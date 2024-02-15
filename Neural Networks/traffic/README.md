@@ -15,3 +15,7 @@ So I reduced the hidden layer size back to 64 and added another 64 hidden layer.
 Finally I increased the number of the convolution filters to 64 or even 256 at each layer, and added yet another 64 hidden layer, with no significant increase in accuracy above 94%.
 
 Then I increased the size of the first hidden layer to 196, to reflect the size of the pool layer. I expected a higher accuracy but received 83% while the training accuracy was 92%. That looked as a result of overfitting, so I added dropout of 0.5. The results then were still 83%, but now the training set results were 88%.
+
+With the first hidden layer only the results were slightly improved to 89%.
+
+Further explorations involved reducing the number of nodes: 2 convolution and pooling layers with less filters, then 2 smaller hidden layers of 36 nodes each. Since we only run few epochs, I eliminated the dropout. The result was both FAST and ACCURATE: 95%.

@@ -84,13 +84,16 @@ def get_model():
 
     model = tf.keras.models.Sequential()
     model.add(tf.keras.Input(shape=(IMG_WIDTH, IMG_HEIGHT, 3)))
-    model.add(tf.keras.layers.Conv2D(128, 3, activation='relu'))
+    model.add(tf.keras.layers.Conv2D(16, 3, activation='relu'))
+    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
+    model.add(tf.keras.layers.Conv2D(32, 3, activation='tanh'))
     model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
     model.add(tf.keras.layers.Flatten())
-    model.add(tf.keras.layers.Dense(196, activation="linear"))
+    model.add(tf.keras.layers.Dense(36, activation="linear"))
     # model.add(tf.keras.layers.Dropout(0.5))
-    model.add(tf.keras.layers.Dense(64, activation="linear"))
-    model.add(tf.keras.layers.Dense(64, activation="linear"))
+    model.add(tf.keras.layers.Dense(36, activation="relu"))
+    # model.add(tf.keras.layers.Dense(64, activation="linear"))
+    # model.add(tf.keras.layers.Dense(64, activation="linear"))
     model.add(tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax"))
 
     model.compile(
