@@ -67,7 +67,7 @@ def load_data(data_dir):
             file_path = os.path.join(category_path, file)
             img = cv2.imread(file_path)
             if not img.shape[0] == IMG_WIDTH or not img.shape[1] == IMG_HEIGHT:
-                img = cv2.resize(img, (IMG_WIDTH, IMG_HEIGHT))
+                img = cv2.resize(img, (IMG_WIDTH, IMG_HEIGHT)).astype("float32")
 
             images.append(img)
             labels.append(category)
@@ -81,8 +81,24 @@ def get_model():
     `input_shape` of the first layer is `(IMG_WIDTH, IMG_HEIGHT, 3)`.
     The output layer should have `NUM_CATEGORIES` units, one for each category.
     """
-    raise NotImplementedError
 
+    model = tf.keras.models.Sequential()
+    model.add(tf.keras.Input(shape=(IMG_WIDTH, IMG_HEIGHT, 3)))
+    model.add(tf.keras.layers.Conv2D(128, 3, activation='relu'))
+    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
+    model.add(tf.keras.layers.Flatten())
+    model.add(tf.keras.layers.Dense(196, activation="linear"))
+    # model.add(tf.keras.layers.Dropout(0.5))
+    model.add(tf.keras.layers.Dense(64, activation="linear"))
+    model.add(tf.keras.layers.Dense(64, activation="linear"))
+    model.add(tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax"))
+
+    model.compile(
+        optimizer="adam",
+        loss="categorical_crossentropy",
+        metrics="accuracy"
+    )
+    return model
 
 if __name__ == "__main__":
     main()

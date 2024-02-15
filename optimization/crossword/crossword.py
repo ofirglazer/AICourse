@@ -59,7 +59,8 @@ class Crossword():
 
         # Save vocabulary list
         with open(words_file) as f:
-            self.words = set(f.read().upper().splitlines())
+            self.words = set(f.read().upper().splitlines()) # ENG
+            # self.words = set(f.read().splitlines()) # HEB
 
         # Determine variable set
         self.variables = set()
