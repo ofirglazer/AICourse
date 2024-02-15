@@ -18,4 +18,4 @@ Then I increased the size of the first hidden layer to 196, to reflect the size 
 
 With the first hidden layer only the results were slightly improved to 89%.
 
-Further explorations involved reducing the number of nodes: 2 convolution and pooling layers with less filters, then 2 smaller hidden layers of 36 nodes each. Since we only run few epochs, I eliminated the dropout. The result was both FAST and ACCURATE: 95%.
+Further explorations involved reducing the number of nodes: 2 convolution and pooling layers with less filters, then 2 smaller hidden layers of 36 nodes each. Since we only run few epochs, I eliminated the dropout. The result was both FAST and ACCURATE: 97%.

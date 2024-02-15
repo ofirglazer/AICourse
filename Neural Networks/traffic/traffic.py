@@ -86,7 +86,7 @@ def get_model():
     model.add(tf.keras.Input(shape=(IMG_WIDTH, IMG_HEIGHT, 3)))
     model.add(tf.keras.layers.Conv2D(16, 3, activation='relu'))
     model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
-    model.add(tf.keras.layers.Conv2D(32, 3, activation='tanh'))
+    model.add(tf.keras.layers.Conv2D(32, 3, activation='sigmoid'))
     model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
     model.add(tf.keras.layers.Flatten())
     model.add(tf.keras.layers.Dense(36, activation="linear"))
