@@ -108,7 +108,7 @@ while True:
     # Generate classification
     if mouse and classifyButton.collidepoint(mouse):
         classification = model.predict(
-            [np.array(handwriting).reshape(1, 30, 30, 1)]
+            [np.array([handwriting, handwriting, handwriting]).reshape(1, 30, 30, 3)]
         ).argmax()
 
     # Show classification if one exists
