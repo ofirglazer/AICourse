@@ -57,9 +57,9 @@ def main():
     for tree in trees:
         tree.pretty_print()
 
-        # print("Noun Phrase Chunks")
-        # for np in np_chunk(tree):
-        #     print(" ".join(np.flatten()))
+        print("Noun Phrase Chunks")
+        for np in np_chunk(tree):
+            print(" ".join(np.flatten()))
 
 
 def preprocess(sentence):
@@ -84,7 +84,13 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
-    raise NotImplementedError
+    chunk = []
+    for subtree in tree.subtrees(lambda t: t.label() == 'NP'):
+        if len([in_sub for in_sub in subtree.subtrees(lambda t: t.label() == 'NP' and not t == subtree)]) > 0:
+            continue
+        chunk.append(subtree)
+
+    return chunk
 
 
 if __name__ == "__main__":
